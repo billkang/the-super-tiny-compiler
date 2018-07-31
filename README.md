@@ -1,47 +1,32 @@
 [![The Super Tiny Compiler](https://cloud.githubusercontent.com/assets/952783/21579290/5755288a-cf75-11e6-90e0-029529a44a38.png)](the-super-tiny-compiler.js)
 
-***Welcome to The Super Tiny Compiler!***
+**_欢迎来到 Super Tiny Compiler!_**
 
-This is an ultra-simplified example of all the major pieces of a modern compiler
-written in easy to read JavaScript.
+该项目使用易于阅读的 JavaScript 编写，用极度简单的方式展示了现代编译器的主要工作流程。
 
-Reading through the guided code will help you learn about how *most* compilers
-work from end to end.
+阅读指导代码，将会帮助你了解大多数编译器从头到尾的工作原理。
 
-### [Want to jump into the code? Click here](the-super-tiny-compiler.js)
+### [阅读源码? 点击这里](the-super-tiny-compiler.js)
 
-### [You can also check it out on Glitch](https://the-super-tiny-compiler.glitch.me/)
+### [你也可以在 Glitch 上阅读相关资料](https://the-super-tiny-compiler.glitch.me/)
 
 ---
 
-### Why should I care?
+### 我为什么在意?
 
-That's fair, most people don't really have to think about compilers in their day
-jobs. However, compilers are all around you, tons of the tools you use are based
-on concepts borrowed from compilers.
+事实上，大部分开发人员在日常工作中是不需要关心编译器的。然而，编译器从没有远离你，你所使用的很多工具都借鉴了编译器的思想。
 
-### But compilers are scary!
+### 但是编译器太恐怖了!
 
-Yes, they are. But that's our fault (the people who write compilers), we've
-taken something that is reasonably straightforward and made it so scary that
-most think of it as this totally unapproachable thing that only the nerdiest of
-the nerds are able to understand.
+是的，他们太复杂了。但这是编译器开发者的错，让人以为理解编译器背后的原理是不可能完成的事，只有书呆子才能做到。
 
-### Okay so where do I begin?
+### 我们从那里开始呢?
 
-Awesome! Head on over to the [the-super-tiny-compiler.js](the-super-tiny-compiler.js)
-file.
-
-### I'm back, that didn't make sense
-
-Ouch, I'm really sorry. I'm planning on doing a lot more work on this to add
-inline annotations. If you want to come back when that's done, you can either
-watch/star this repo or follow me on
-[twitter](https://twitter.com/thejameskyle) for updates.
+关注该文件 [the-super-tiny-compiler.js](the-super-tiny-compiler.js)。
 
 ### Tests
 
-Run with `node test.js`
+运行 `node test.js`
 
 ---
 
