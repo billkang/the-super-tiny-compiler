@@ -96,7 +96,7 @@
  */
 
 /**
- * 大多数编译器分为三个主要部分: 解析、转换和代码生成。
+ * 大多数编译器分为三个主要部分：解析、转换和代码生成。
  * 
  * 1. 解析：将源代码转换成一个更抽象的代码表示形式（AST）。
  * 
@@ -120,11 +120,11 @@
  *
  *    抽象语法树（AST）是一种嵌套很深的对象，用一种既容易处理，又能告诉我们很多信息的方式表示代码。
  *
- * 例如下面的语法:
+ * 例如下面的语法：
  *
  *   (add 2 (subtract 4 2))
  *
- * 令牌可能会是这样的:
+ * 令牌可能会是这样的：
  *
  *   [
  *     { type: 'paren',  value: '('        },
@@ -138,7 +138,7 @@
  *     { type: 'paren',  value: ')'        },
  *   ]
  *
- * 抽象语法树 (AST) 可能会是这样的:
+ * 抽象语法树 (AST) 可能会是这样的：
  *
  *   {
  *     type: 'Program',
@@ -174,14 +174,14 @@
  * 你可能注意到，我们的AST中有一些看来起非常相似的元素。
  * 这些对象都包含类型属性，这些对象被成为AST的节点。每个节点都有自己的属性，这些节点用以描述抽象语法树的每个独立部分。
  *
- * 我们有一个叫做 "NumberLiteral" 的节点:
+ * 我们有一个叫做 "NumberLiteral" 的节点：
  *
  *   {
  *     type: 'NumberLiteral',
  *     value: '2',
  *   }
  *
- * 或者是节点 "CallExpression":
+ * 或者是节点 "CallExpression"：
  *
  *   {
  *     type: 'CallExpression',
@@ -239,27 +239,24 @@
  * 访问者
  * --------
  *
- * The basic idea here is that we are going to create a “visitor” object that
- * has methods that will accept different node types.
+ * 这里的基本思路是，我们将创建一个“visitor”对象，该对象具有接受不同节点类型的方法。
  *
  *   var visitor = {
  *     NumberLiteral() {},
  *     CallExpression() {},
  *   };
  *
- * When we traverse our AST, we will call the methods on this visitor whenever we
- * "enter" a node of a matching type.
+ * 在我们遍历抽象语法树时，当“进入”一个节点匹配的类型时，我们就会调用访问者上面对应的方法。
  *
- * In order to make this useful we will also pass the node and a reference to
- * the parent node.
+ * 为了方便，我们会将节点和父节点的引用传递给方法。
  *
  *   var visitor = {
  *     NumberLiteral(node, parent) {},
  *     CallExpression(node, parent) {},
  *   };
  *
- * However, there also exists the possibility of calling things on "exit". Imagine
- * our tree structure from before in list form:
+ * 与此同时，也存在“退出”时需要执行方法的可能。
+ * 想象下我们的树结构是这样的：
  *
  *   - Program
  *     - CallExpression
@@ -268,9 +265,8 @@
  *         - NumberLiteral
  *         - NumberLiteral
  *
- * As we traverse down, we're going to reach branches with dead ends. As we
- * finish each branch of the tree we "exit" it. So going down the tree we
- * "enter" each node, and going back up we "exit".
+ * 当我们从上放下遍历的时候，我们会到达每一个分支的尽头。当我们完成每一个分支的操作后，我们会“退出”。
+ * 沿着树向下，我们“进入”每一个节点，然后向上，我们“退出”。
  *
  *   -> Program (enter)
  *     -> CallExpression (enter)
@@ -285,7 +281,7 @@
  *     <- CallExpression (exit)
  *   <- Program (exit)
  *
- * In order to support that, the final form of our visitor will look like this:
+ * 为了支持这一切，我们的访问者最终形式是这样的：
  *
  *   var visitor = {
  *     NumberLiteral: {
@@ -299,42 +295,35 @@
  * 代码生成
  * ---------------
  *
- * The final phase of a compiler is code generation. Sometimes compilers will do
- * things that overlap with transformation, but for the most part code
- * generation just means take our AST and string-ify code back out.
+ * 编译器的最后阶段是代码生成。有时候，编译器会在此阶段做一些和转换重叠的工作，但是大多数情况下，
+ * 代码生成仅仅意味着获取我们的抽象语法树，并将其处理成字符串。
  *
- * Code generators work several different ways, some compilers will reuse the
- * tokens from earlier, others will have created a separate representation of
- * the code so that they can print node linearly, but from what I can tell most
- * will use the same AST we just created, which is what we’re going to focus on.
+ * 代码生成器有很多种不同的工作方式，一些编译器会重用之前的令牌，另外一些编译器会创建单独的代码表示形式，
+ * 这样他就可以逐次打印代码。但就我所知，大多数情况下将会使用我们之前创建的抽象语法树，这也将是我们接下来要关注的。
  *
- * Effectively our code generator will know how to “print” all of the different
- * node types of the AST, and it will recursively call itself to print nested
- * nodes until everything is printed into one long string of code.
+ * 实际上，我们的代码生成器知道如何“打印”抽象语法树的所有不同节点，
+ * 并且它将递归的调用自己来打印内嵌节点，直到所有内容都打印到一个长长的代码字符串中。
  */
 
 /**
- * And that's it! That's all the different pieces of a compiler.
+ * 就是这样，这些就是编译器所有的部分。
  *
- * Now that isn’t to say every compiler looks exactly like I described here.
- * Compilers serve many different purposes, and they might need more steps than
- * I have detailed.
+ * 但这并不是说，每个编译器看起来都和我之前描述的一模一样。
+ * 面对不同的用途，编译器可能会拥有比我在这里介绍的更多步骤。
  *
- * But now you should have a general high-level idea of what most compilers look
- * like.
+ * 但是现在你应该对大多数编译器，有了一个总体的更高层次的概念。
  *
- * Now that I’ve explained all of this, you’re all good to go write your own
- * compilers right?
+ * 既然我已经解释了所有这些，你们都可以自己编写编译器了，对吧?
  *
- * Just kidding, that's what I'm here to help with :P
+ * 开个玩笑，我其实是来帮你的：
  *
- * So let's begin...
+ * 让我们开始吧...
  */
 
 /**
  * ============================================================================
  *                                   (/^▽^)/
- *                                THE TOKENIZER!
+ *                                  令牌处理器!
  * ============================================================================
  */
 
@@ -898,7 +887,7 @@ function transformer (ast) {
 /**
  * ============================================================================
  *                               ヾ（〃＾∇＾）ﾉ♪
- *                            THE CODE GENERATOR!!!!
+ *                               代码生成器!!!!
  * ============================================================================
  */
 
@@ -951,13 +940,12 @@ function codeGenerator (node) {
 /**
  * ============================================================================
  *                                  (۶* ‘ヮ’)۶”
- *                         !!!!!!!!编译器!!!!!!!!
+ *                            !!!!!!!!编译器!!!!!!!!
  * ============================================================================
  */
 
 /**
- * FINALLY! We'll create our `compiler` function. Here we will link together
- * every part of the pipeline.
+ * 结束了! 我们将创建我们的“编译器”函数。在这里，我们会把管道的每一个部分链接在一起。
  *
  *   1. input  => tokenizer   => tokens
  *   2. tokens => parser      => ast
