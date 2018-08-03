@@ -328,56 +328,47 @@
  */
 
 /**
- * We're gonna start off with our first phase of parsing, lexical analysis, with
- * the tokenizer.
+ * 接下来我们介绍的会是解析的第一个步骤，使用令牌处理器进行词法分析。
  *
- * We're just going to take our string of code and break it down into an array
- * of tokens.
+ * 我们会把我们的字符串代码分解成一个令牌数组。
  *
  *   (add 2 (subtract 4 2))   =>   [{ type: 'paren', value: '(' }, ...]
  */
 
-// We start by accepting an input string of code, and we're gonna set up two
-// things...
+// 我们首先接受一个字符串代码作为输入项，然后处理两件事情...
 function tokenizer (input) {
-  // A `current` variable for tracking our position in the code like a cursor.
+  // `current` 变量用于跟踪我们在代码中的位置，就像一个游标。
   let current = 0;
 
-  // And a `tokens` array for pushing our tokens to.
+  // `tokens` 变量用于存放所有的令牌。
   let tokens = [];
 
-  // We start by creating a `while` loop where we are setting up our `current`
-  // variable to be incremented as much as we want `inside` the loop.
+  // 首先我们创建一个‘while’循环，在这个循环中，我们尽可能的递增‘current’变量。
   //
-  // We do this because we may want to increment `current` many times within a
-  // single loop because our tokens can be any length.
+  // 我们之所以要在一个循环中多次增加‘current’，是因为我们的令牌可能会很长。
   while (current < input.length) {
-    // We're also going to store the `current` character in the `input`.
+    // 我们还将存储‘input’中，位于‘current’位置的字符
     let char = input[current];
 
-    // The first thing we want to check for is an open parenthesis. This will
-    // later be used for `CallExpression` but for now we only care about the
-    // character.
+    // 我们首先需要检查的是一个开始括号。它将稍后用于‘CallExpression’，但是现在我们只关心字符本身。
     //
-    // We check to see if we have an open parenthesis:
+    // 我们检查是否包含开始括号：
     if (char === '(') {
-      // If we do, we push a new token with the type `paren` and set the value
-      // to an open parenthesis.
+      // 如果是的话，我们将插入一个类型为‘paren’的新令牌，并将值设置为‘(’。
       tokens.push ({
         type: 'paren',
         value: '(',
       });
 
-      // Then we increment `current`
+      // 接着我们让 `current` 加1
       current++;
 
-      // And we `continue` onto the next cycle of the loop.
+      // 我们继续下一个循环
       continue;
     }
 
-    // Next we're going to check for a closing parenthesis. We do the same exact
-    // thing as before: Check for a closing parenthesis, add a new token,
-    // increment `current`, and `continue`.
+    // 接下来我们要检查‘)’。
+    // 我们做的事情和上一步一样：检查关闭括号，添加新令牌，自增‘current’和继续循环。
     if (char === ')') {
       tokens.push ({
         type: 'paren',
@@ -387,46 +378,40 @@ function tokenizer (input) {
       continue;
     }
 
-    // Moving on, we're now going to check for whitespace. This is interesting
-    // because we care that whitespace exists to separate characters, but it
-    // isn't actually important for us to store as a token. We would only throw
-    // it out later.
+    // 接下来，我们将检查空格。有趣的是，虽然我们关心存在于分隔符中的空格，但对我们来说，它并不重要。
+    // 所以我们不会将他作为令牌而存储，我们只是简单的忽略它。
     //
-    // So here we're just going to test for existence and if it does exist we're
-    // going to just `continue` on.
+    // 再这里，我们要做的只是检查它是否存在，如果存在的话，就继续我们的循环。
     let WHITESPACE = /\s/;
     if (WHITESPACE.test (char)) {
       current++;
       continue;
     }
 
-    // The next type of token is a number. This is different than what we have
-    // seen before because a number could be any number of characters and we
-    // want to capture the entire sequence of characters as one token.
+    // 接下来要处理的是数字令牌。
+    // 这和我们之前面对的不同，因为数字可以是任意长度，而我们要获取整个字符序列，并将其标记为令牌。
     //
     //   (add 123 456)
     //        ^^^ ^^^
-    //        Only two separate tokens
+    //        只包含两个独立的令牌
     //
-    // So we start this off when we encounter the first number in a sequence.
+    // 我们从遇到字符串的第一个数字开始。
     let NUMBERS = /[0-9]/;
     if (NUMBERS.test (char)) {
-      // We're going to create a `value` string that we are going to push
-      // characters to.
+      // 我们将创建‘value’变量，用于保存遇到的字符。
       let value = '';
 
-      // Then we're going to loop through each character in the sequence until
-      // we encounter a character that is not a number, pushing each character
-      // that is a number to our `value` and incrementing `current` as we go.
+      // 然后，我们会遍历序列中的每个字符，直到遇到一个不是数字的字符，
+      // 将每个数字字符插入到‘value’中，并在执行过程中递增‘current’。
       while (NUMBERS.test (char)) {
         value += char;
         char = input[++current];
       }
 
-      // After that we push our `number` token to the `tokens` array.
+      // 之后，我们将‘number’标记，插入到令牌数组中。
       tokens.push ({type: 'number', value});
 
-      // And we continue on.
+      // 我们继续。
       continue;
     }
 
