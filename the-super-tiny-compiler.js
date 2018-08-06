@@ -415,67 +415,61 @@ function tokenizer (input) {
       continue;
     }
 
-    // We'll also add support for strings in our language which will be any
-    // text surrounded by double quotes (").
+    // 我们还将在我们的语言中添加对字符串的支持，这些字符串将是由双引号(")包围的任何文本。
     //
     //   (concat "foo" "bar")
-    //            ^^^   ^^^ string tokens
+    //            ^^^   ^^^ 字符串标记
     //
-    // We'll start by checking for the opening quote:
+    // 我们先检查开始引号：
     if (char === '"') {
-      // Keep a `value` variable for building up our string token.
+      // 保留 `value` 变量，来构建字符串令牌。
       let value = '';
 
-      // We'll skip the opening double quote in our token.
+      // 我们将跳过令牌中的开始双引号。
       char = input[++current];
 
-      // Then we'll iterate through each character until we reach another
-      // double quote.
+      // 接着我们将遍历每个字符，直到找到另一个双引号。
       while (char !== '"') {
         value += char;
         char = input[++current];
       }
 
-      // Skip the closing double quote.
+      // 跳过结束双引号。
       char = input[++current];
 
-      // And add our `string` token to the `tokens` array.
+      // 并将“string”标记添加到令牌数组中。
       tokens.push ({type: 'string', value});
 
       continue;
     }
 
-    // The last type of token will be a `name` token. This is a sequence of
-    // letters instead of numbers, that are the names of functions in our lisp
-    // syntax.
+    // 我们要介绍的最后一个令牌是“名称”令牌。这是一个字母序列，而不是数字，它们是lisp语法中函数的名称。
     //
     //   (add 2 4)
     //    ^^^
-    //    Name token
+    //    名称令牌
     //
     let LETTERS = /[a-z]/i;
     if (LETTERS.test (char)) {
       let value = '';
 
-      // Again we're just going to loop through all the letters pushing them to
-      // a value.
+      // 这次也一样，我们将会遍历每一个字母，并把它们插入到‘value’变量中。
       while (LETTERS.test (char)) {
         value += char;
         char = input[++current];
       }
 
-      // And pushing that value as a token with the type `name` and continuing.
+      // 将这些值以type为‘name’的形式插入到令牌数组，然后继续。
       tokens.push ({type: 'name', value});
 
       continue;
     }
 
-    // Finally if we have not matched a character by now, we're going to throw
-    // an error and completely exit.
+    // 最后，如果我们现在有任何字符没有被成功匹配，我们将抛出一个错误并退出执行。
     throw new TypeError ('I dont know what this character is: ' + char);
   }
 
-  // Then at the end of our `tokenizer` we simply return the tokens array.
+  // 我们的令牌解析器最后要做的，只是简单的返回刚生成的令牌数组。
   return tokens;
 }
 
@@ -487,41 +481,36 @@ function tokenizer (input) {
  */
 
 /**
- * For our parser we're going to take our array of tokens and turn it into an
- * AST.
+ * 对于我们的解析器，该阶段要做的事情就是获取之前的令牌数组，将其转换成抽象语法树。
  *
  *   [{ type: 'paren', value: '(' }, ...]   =>   { type: 'Program', body: [...] }
  */
 
-// Okay, so we define a `parser` function that accepts our array of `tokens`.
+// 好的，我们定义了一个‘parser’函数，接受‘令牌’数组作为参数。
 function parser (tokens) {
-  // Again we keep a `current` variable that we will use as a cursor.
+  // 同样，我们创建‘current’变量，我们将把他作为游标使用。
   let current = 0;
 
-  // But this time we're going to use recursion instead of a `while` loop. So we
-  // define a `walk` function.
+  // 但是这次我们将使用递归而不是while循环，所以我们定义了‘walk’函数。
   function walk () {
-    // Inside the walk function we start by grabbing the `current` token.
+    // ‘walk’函数中，我们首先获取令牌数组中处于‘current’位置的令牌。
     let token = tokens[current];
 
-    // We're going to split each type of token off into a different code path,
-    // starting off with `number` tokens.
+    // 我们将用不同的代码分支处理不同类型的令牌，首先处理的是‘number’令牌。
     //
-    // We test to see if we have a `number` token.
+    // 我们检查，是否含有一个‘number’令牌。
     if (token.type === 'number') {
-      // If we have one, we'll increment `current`.
+      // 如果存在，`current`加一。
       current++;
 
-      // And we'll return a new AST node called `NumberLiteral` and setting its
-      // value to the value of our token.
+      // 我们将返回一个‘NumberLiteral’类型的新AST节点，并将其值设置为令牌的值。
       return {
         type: 'NumberLiteral',
         value: token.value,
       };
     }
 
-    // If we have a string we will do the same as number and create a
-    // `StringLiteral` node.
+    // 对于字符串，我们的操作和number一样，创建一个‘StringLiteral’节点。
     if (token.type === 'string') {
       current++;
 
@@ -531,40 +520,32 @@ function parser (tokens) {
       };
     }
 
-    // Next we're going to look for CallExpressions. We start this off when we
-    // encounter an open parenthesis.
+    // 接下来我们将处理‘CallExpressions’，首先我们会遇到开始括号。
     if (token.type === 'paren' && token.value === '(') {
-      // We'll increment `current` to skip the parenthesis since we don't care
-      // about it in our AST.
+      // 我们将增加‘current’，以跳过括号，因为在AST中我们不需要关注它。
       token = tokens[++current];
 
-      // We create a base node with the type `CallExpression`, and we're going
-      // to set the name as the current token's value since the next token after
-      // the open parenthesis is the name of the function.
+      // 我们将创建`CallExpression`类型基础节点, 我们将把名字设置为当前令牌的值，
+      // 因为开始括号后的下一个令牌就是函数名称。
       let node = {
         type: 'CallExpression',
         name: token.value,
         params: [],
       };
 
-      // We increment `current` *again* to skip the name token.
+      // 在次增加‘current’，以跳过名称令牌。
       token = tokens[++current];
 
-      // And now we want to loop through each token that will be the `params` of
-      // our `CallExpression` until we encounter a closing parenthesis.
+      // 现在我们将遍历每一个令牌，直到遇到结束括号，它们将会是‘CallExpression’节点的‘params’。
       //
-      // Now this is where recursion comes in. Instead of trying to parse a
-      // potentially infinitely nested set of nodes we're going to rely on
-      // recursion to resolve things.
+      // 这就是递归的由来。我们将依赖递归来解决问题，而不是尝试解析一个潜在的无限嵌套的节点集。
       //
-      // To explain this, let's take our Lisp code. You can see that the
-      // parameters of the `add` are a number and a nested `CallExpression` that
-      // includes its own numbers.
+      // 为了解析这点，我们来看Lisp代码。你可以看到‘add’的参数是一个数字和一个嵌套的‘CallExpression’节点，
+      // 它又包含自己的数字。
       //
       //   (add 2 (subtract 4 2))
       //
-      // You'll also notice that in our tokens array we have multiple closing
-      // parenthesis.
+      // 你还会注意到，在我们的令牌数组中还包含了很多结束括号。
       //
       //   [
       //     { type: 'paren',  value: '('        },
@@ -578,47 +559,38 @@ function parser (tokens) {
       //     { type: 'paren',  value: ')'        }, <<< Closing parenthesis
       //   ]
       //
-      // We're going to rely on the nested `walk` function to increment our
-      // `current` variable past any nested `CallExpression`.
+      // 我们将依赖于嵌套的‘walk’函数，在任何嵌套的‘CallExpression’之后，增加‘current’变量。
 
-      // So we create a `while` loop that will continue until it encounters a
-      // token with a `type` of `'paren'` and a `value` of a closing
-      // parenthesis.
+      // 因此我们创建一个‘while’循环，它只有在遇到一个类型为‘paren’、值为‘)’的令牌的时候才会停止。
       while (
         token.type !== 'paren' ||
         (token.type === 'paren' && token.value !== ')')
       ) {
-        // we'll call the `walk` function which will return a `node` and we'll
-        // push it into our `node.params`.
+        // 我们将会调用‘walk’函数，我们会将其返回值插入到‘node.params’中。
         node.params.push (walk ());
         token = tokens[current];
       }
 
-      // Finally we will increment `current` one last time to skip the closing
-      // parenthesis.
+      // 最后，我们将最后一次增加‘current’，以跳过结束括号。
       current++;
 
-      // And return the node.
+      // 返回node。
       return node;
     }
 
-    // Again, if we haven't recognized the token type by now we're going to
-    // throw an error.
+    // 同样，如果遇到没能识别的令牌，我们将抛出错误。
     throw new TypeError (token.type);
   }
 
-  // Now, we're going to create our AST which will have a root which is a
-  // `Program` node.
+  // 现在，我们将创建根节点为‘Program’的抽象语法树。
   let ast = {
     type: 'Program',
     body: [],
   };
 
-  // And we're going to kickstart our `walk` function, pushing nodes to our
-  // `ast.body` array.
+  // 我们将执行‘walk’函数，将节点添加到‘ast.body’中。
   //
-  // The reason we are doing this inside a loop is because our program can have
-  // `CallExpression` after one another instead of being nested.
+  // 我们之所以要使用循环，是因为我们的程序的‘CallExpression’节点不是嵌套关系，而是兄弟节点关系。
   //
   //   (add 2 2)
   //   (subtract 4 2)
@@ -627,14 +599,14 @@ function parser (tokens) {
     ast.body.push (walk ());
   }
 
-  // At the end of our parser we'll return the AST.
+  // 解析器的最后将返回该抽象语法树。
   return ast;
 }
 
 /**
  * ============================================================================
  *                                 ⌒(❀>◞౪◟<❀)⌒
- *                               THE TRAVERSER!!!
+ *                                   遍历器!!!
  * ============================================================================
  */
 
