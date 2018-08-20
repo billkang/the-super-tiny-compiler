@@ -234,19 +234,19 @@
  * 如果我们直接操作这个AST，而不是创建一个单独的AST，我们可能会在这里介绍各种抽象概念。
  * 但是只是访问树的每个介绍，对于我们要做的事情来说已经足够。
  *
- * 我之所以使用“访问”这个词，是因为访问者模式，他用来处理如何在对象结构的元素上进行操作。
+ * 我之所以使用‘访问’这个词，是因为访问者模式，他用来处理如何在对象结构的元素上进行操作。
  *
  * 访问者
  * --------
  *
- * 这里的基本思路是，我们将创建一个“visitor”对象，该对象具有接受不同节点类型的方法。
+ * 这里的基本思路是，我们将创建一个‘visitor’对象，该对象具有接受不同节点类型的方法。
  *
  *   var visitor = {
  *     NumberLiteral() {},
  *     CallExpression() {},
  *   };
  *
- * 在我们遍历抽象语法树时，当“进入”一个节点匹配的类型时，我们就会调用访问者上面对应的方法。
+ * 在我们遍历抽象语法树时，当‘进入’一个节点匹配的类型时，我们就会调用访问者上面对应的方法。
  *
  * 为了方便，我们会将节点和父节点的引用传递给方法。
  *
@@ -255,7 +255,7 @@
  *     CallExpression(node, parent) {},
  *   };
  *
- * 与此同时，也存在“退出”时需要执行方法的可能。
+ * 与此同时，也存在‘退出’时需要执行方法的可能。
  * 想象下我们的树结构是这样的：
  *
  *   - Program
@@ -265,8 +265,8 @@
  *         - NumberLiteral
  *         - NumberLiteral
  *
- * 当我们从上放下遍历的时候，我们会到达每一个分支的尽头。当我们完成每一个分支的操作后，我们会“退出”。
- * 沿着树向下，我们“进入”每一个节点，然后向上，我们“退出”。
+ * 当我们从上放下遍历的时候，我们会到达每一个分支的尽头。当我们完成每一个分支的操作后，我们会‘退出’。
+ * 沿着树向下，我们‘进入’每一个节点，然后向上，我们‘退出’。
  *
  *   -> Program (enter)
  *     -> CallExpression (enter)
@@ -301,7 +301,7 @@
  * 代码生成器有很多种不同的工作方式，一些编译器会重用之前的令牌，另外一些编译器会创建单独的代码表示形式，
  * 这样他就可以逐次打印代码。但就我所知，大多数情况下将会使用我们之前创建的抽象语法树，这也将是我们接下来要关注的。
  *
- * 实际上，我们的代码生成器知道如何“打印”抽象语法树的所有不同节点，
+ * 实际上，我们的代码生成器知道如何‘打印’抽象语法树的所有不同节点，
  * 并且它将递归的调用自己来打印内嵌节点，直到所有内容都打印到一个长长的代码字符串中。
  */
 
@@ -437,13 +437,13 @@ function tokenizer (input) {
       // 跳过结束双引号。
       char = input[++current];
 
-      // 并将“string”标记添加到令牌数组中。
+      // 并将‘string’标记添加到令牌数组中。
       tokens.push ({type: 'string', value});
 
       continue;
     }
 
-    // 我们要介绍的最后一个令牌是“名称”令牌。这是一个字母序列，而不是数字，它们是lisp语法中函数的名称。
+    // 我们要介绍的最后一个令牌是‘名称’令牌。这是一个字母序列，而不是数字，它们是lisp语法中函数的名称。
     //
     //   (add 2 4)
     //    ^^^
@@ -611,9 +611,8 @@ function parser (tokens) {
  */
 
 /**
- * So now we have our AST, and we want to be able to visit different nodes with
- * a visitor. We need to be able to call the methods on the visitor whenever we
- * encounter a node with a matching type.
+ * 现在我们有了AST，接下来需要一个访问器去访问不同节点。 
+ * 当遇到匹配类型的节点时，我们需要能够调用访问器上对应的方法。
  *
  *   traverse(ast, {
  *     Program: {
@@ -645,65 +644,57 @@ function parser (tokens) {
  *   });
  */
 
-// So we define a traverser function which accepts an AST and a
-// visitor. Inside we're going to define two functions...
+// 因此，我们定义一个接受AST和visitor参数的‘traverser’函数，在里面我们要定义两个函数。
 function traverser (ast, visitor) {
-  // A `traverseArray` function that will allow us to iterate over an array and
-  // call the next function that we will define: `traverseNode`.
+  // ‘traverseArray’函数允许我们遍历一个数组，并调用我们定义的‘traverseNode’函数。
   function traverseArray (array, parent) {
     array.forEach (child => {
       traverseNode (child, parent);
     });
   }
 
-  // `traverseNode` will accept a `node` and its `parent` node. So that it can
-  // pass both to our visitor methods.
+  // ’traverseNode‘将接受两个参数，‘节点’和它的‘父节点’。这样他就可以同时传递给我们的visitor方法。
   function traverseNode (node, parent) {
-    // We start by testing for the existence of a method on the visitor with a
-    // matching `type`.
+    // 我们首先测试visitor是否存在匹配类型的方法。
     let methods = visitor[node.type];
 
-    // If there is an `enter` method for this node type we'll call it with the
-    // `node` and its `parent`.
+    // 如果这个节点类型有一个‘enter’方法，我们将用‘节点’和它的‘父节点’作为参数来调用它。
     if (methods && methods.enter) {
       methods.enter (node, parent);
     }
 
-    // Next we are going to split things up by the current node type.
+    // 接下来，我们将按照当前节点类型来执行不同的操作。
     switch (node.type) {
-      // We'll start with our top level `Program`. Since Program nodes have a
-      // property named body that has an array of nodes, we will call
-      // `traverseArray` to traverse down into them.
+      // 我们将从最顶层的‘Program’开始。因为程序节点有一个‘body’属性，它包含一个节点数组，
+      // 所以我们将调用‘traverseArray’方法来遍历它们。
       //
-      // (Remember that `traverseArray` will in turn call `traverseNode` so  we
-      // are causing the tree to be traversed recursively)
+      //（需要注意的是，‘traverseArray’会反过来调用‘traverseNode’，
+      // 导致的结果是，我们需要递归的遍历语法树）
       case 'Program':
         traverseArray (node.body, node);
         break;
-      // Next we do the same with `CallExpression` and traverse their `params`.
+      // 接下来，我们对‘CallExpression’做同样的操作，遍历它们的‘params’。
       case 'CallExpression':
         traverseArray (node.params, node);
         break;
-      // In the cases of `NumberLiteral` and `StringLiteral` we don't have any
-      // child nodes to visit, so we'll just break.
+      // 对于`NumberLiteral` 和 `StringLiteral`，我们没有需要访问的子节点，
+      // 所以我们将会跳过执行。
       case 'NumberLiteral':
       case 'StringLiteral':
         break;
-      // And again, if we haven't recognized the node type then we'll throw an
-      // error.
+      // 最后，如果我们没能识别节点类型，我们就会抛出一个错误。
       default:
         throw new TypeError (node.type);
     }
 
-    // If there is an `exit` method for this node type we'll call it with the
-    // `node` and its `parent`.
+    // 如果这个节点类型有‘exit’方法，我们将用‘节点’和它的‘父节点’作为参数来调用它。
     if (methods && methods.exit) {
       methods.exit (node, parent);
     }
   }
 
-  // Finally we kickstart the traverser by calling `traverseNode` with our ast
-  // with no `parent` because the top level of the AST doesn't have a parent.
+  // 最后，我们使用AST作为参数来调用‘traverseNode’，用以启动traverser，
+  // 因为AST的顶层没有父级，所以‘traverseNode’方法的第二个参数为null。
   traverseNode (ast, null);
 }
 
@@ -715,12 +706,11 @@ function traverser (ast, visitor) {
  */
 
 /**
- * Next up, the transformer. Our transformer is going to take the AST that we
- * have built and pass it to our traverser function with a visitor and will
- * create a new ast.
+ * 接下来轮到了转换器。我们的转换器将使用我们构建的AST，并将其与访问者一起传递给traverser函数，
+ * 并将创建一个新的AST。
  *
  * ----------------------------------------------------------------------------
- *   Original AST                     |   Transformed AST
+ *    原始AST                          |   转换后的AST
  * ----------------------------------------------------------------------------
  *   {                                |   {
  *     type: 'Program',               |     type: 'Program',
@@ -755,32 +745,27 @@ function traverser (ast, visitor) {
  * ----------------------------------------------------------------------------
  */
 
-// So we have our transformer function which will accept the lisp ast.
+// 因此，我们将traverser函数接受lisp AST。
 function transformer (ast) {
-  // We'll create a `newAst` which like our previous AST will have a program
-  // node.
+  // 我们将创建一个‘newAST’，就像之前的AST一样，包含一个‘program’节点。
   let newAst = {
     type: 'Program',
     body: [],
   };
 
-  // Next I'm going to cheat a little and create a bit of a hack. We're going to
-  // use a property named `context` on our parent nodes that we're going to push
-  // nodes to their parent's `context`. Normally you would have a better
-  // abstraction than this, but for our purposes this keeps things simple.
+  // 接下来我要用到一些非常规手段。我们要在要推送的父节点上，使用一个名为‘context’的属性节点，
+  // 到父节点的‘上下文’。通常情况，你会有比这个更好的抽象方案，但就我们的目的而言，他使事情变得简单。
   //
-  // Just take note that the context is a reference *from* the old ast *to* the
-  // new ast.
+  // 请注意，上下文是从旧AST到新AST的引用。
   ast._context = newAst.body;
 
-  // We'll start by calling the traverser function with our ast and a visitor.
+  // 我们将从使用ast和访问者调用traverser函数。
   traverser (ast, {
-    // The first visitor method accepts any `NumberLiteral`
+    // 第一个访问者方法接受任何‘NumberLiteral’。
     NumberLiteral: {
-      // We'll visit them on enter.
+      // 我们将在‘enter’中访问他们。
       enter (node, parent) {
-        // We'll create a new node also named `NumberLiteral` that we will push to
-        // the parent context.
+        // 我们将创建一个名为‘NumberLiteral’的新节点，并将其推送到父上下文。
         parent._context.push ({
           type: 'NumberLiteral',
           value: node.value,
@@ -788,7 +773,7 @@ function transformer (ast) {
       },
     },
 
-    // Next we have `StringLiteral`
+    // 接下来，我们处理`StringLiteral`。
     StringLiteral: {
       enter (node, parent) {
         parent._context.push ({
@@ -798,11 +783,10 @@ function transformer (ast) {
       },
     },
 
-    // Next up, `CallExpression`.
+    // 接下来是‘CallExpression’。
     CallExpression: {
       enter (node, parent) {
-        // We start creating a new node `CallExpression` with a nested
-        // `Identifier`.
+        // 我们将创建一个新节点‘CallExpression’，内部嵌套‘Identifier’。
         let expression = {
           type: 'CallExpression',
           callee: {
@@ -812,32 +796,27 @@ function transformer (ast) {
           arguments: [],
         };
 
-        // Next we're going to define a new context on the original
-        // `CallExpression` node that will reference the `expression`'s arguments
-        // so that we can push arguments.
+        // 接下来，我们将在原始‘CallExpression’节点上定义一个新的上下文，
+        // 该节点将引用‘expression’的参数，以便我们可以推送参数。
         node._context = expression.arguments;
 
-        // Then we're going to check if the parent node is a `CallExpression`.
-        // If it is not...
+        // 然后我们将检查父节点是否为‘CallExpression’。如果不是……
         if (parent.type !== 'CallExpression') {
-          // We're going to wrap our `CallExpression` node with an
-          // `ExpressionStatement`. We do this because the top level
-          // `CallExpression` in JavaScript are actually statements.
+          // 我们将用‘ExpressionStatement’来包装‘CallExpression’节点。
+          // 之所以这样做，是因为JavaScript中的顶级‘CallExpression’实际上都是语句。
           expression = {
             type: 'ExpressionStatement',
             expression: expression,
           };
         }
 
-        // Last, we push our (possibly wrapped) `CallExpression` to the `parent`'s
-        // `context`.
+        // 最后，我们推送我们的‘CallEzpression’（可能是包装过的），到父节点的上下文中。
         parent._context.push (expression);
       },
     },
   });
 
-  // At the end of our transformer function we'll return the new ast that we
-  // just created.
+  // 在traverser函数的末尾，我们会返回新创建的AST。
   return newAst;
 }
 
@@ -849,29 +828,26 @@ function transformer (ast) {
  */
 
 /**
- * Now let's move onto our last phase: The Code Generator.
+ * 现在让我们进入最后一个阶段：代码生成器。
  *
- * Our code generator is going to recursively call itself to print each node in
- * the tree into one giant string.
+ * 我们的代码生成器将递归调用自己，将树中的每个节点打印成一个巨大的字符串。
  */
 
 function codeGenerator (node) {
-  // We'll break things down by the `type` of the `node`.
+  // 我们将按‘节点’的‘类型’进行分类。
   switch (node.type) {
-    // If we have a `Program` node. We will map through each node in the `body`
-    // and run them through the code generator and join them with a newline.
+    // 如果我们有一个‘Program’节点。我们将遍历‘body’中的每个节点，
+    // 通过代码生成器修改他们，并用换行符链接结果。
     case 'Program':
       return node.body.map (codeGenerator).join ('\n');
-    // For `ExpressionStatement` we'll call the code generator on the nested
-    // expression and we'll add a semicolon...
+    // 对于‘ExpressionStatement’，我们将在内嵌的‘expression’上使用代码生成器，并添加分号。
     case 'ExpressionStatement':
       return (
-        codeGenerator (node.expression) + ';' // << (...because we like to code the *correct* way)
+        codeGenerator (node.expression) + ';' // << (...因为我们喜欢用正确的方式编码)
       );
-    // For `CallExpression` we will print the `callee`, add an open
-    // parenthesis, we'll map through each node in the `arguments` array and run
-    // them through the code generator, joining them with a comma, and then
-    // we'll add a closing parenthesis.
+    // 对于‘CallExpression’我们将打印‘callee’，并添加一个‘开始’括号。
+    // 我们将遍历‘arguments’数组中的每一个节点，然后使用代码生成器运行它们，
+    // 用逗号链接它们，最后我们添加一个闭括号。
     case 'CallExpression':
       return (
         codeGenerator (node.callee) +
@@ -879,16 +855,16 @@ function codeGenerator (node) {
         node.arguments.map (codeGenerator).join (', ') +
         ')'
       );
-    // For `Identifier` we'll just return the `node`'s name.
+    // 对于‘Identifier’，我们只返回‘节点’的名称。
     case 'Identifier':
       return node.name;
-    // For `NumberLiteral` we'll just return the `node`'s value.
+    // 对于‘NumberLiteral’，我们只返回节点的值。
     case 'NumberLiteral':
       return node.value;
-    // For `StringLiteral` we'll add quotations around the `node`'s value.
+    // 对于‘StringLiteral’，我们将使用引号包裹节点的值。
     case 'StringLiteral':
       return '"' + node.value + '"';
-    // And if we haven't recognized the node, we'll throw an error.
+    // 如果我们没能识别节点，就会抛出一个错误。
     default:
       throw new TypeError (node.type);
   }
@@ -902,7 +878,7 @@ function codeGenerator (node) {
  */
 
 /**
- * 结束了! 我们将创建我们的“编译器”函数。在这里，我们会把管道的每一个部分链接在一起。
+ * 结束了! 我们将创建我们的‘编译器’函数。在这里，我们会把管道的每一个部分链接在一起。
  *
  *   1. input  => tokenizer   => tokens
  *   2. tokens => parser      => ast
